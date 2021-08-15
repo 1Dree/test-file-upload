@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body id="root">
+    <form>
+      <input type="file" name="file" />
+      <button type="sumbit">submit</button>
+    </form>
+
+    <div>
+      <button id="getFiles">get all Files</button>
+    </div>
+    <div id="file-cards"></div>
+
+    <script>
+      const form = document.querySelector("form");
+      const getFsBtn = document.querySelector("#getFiles");
+
+      getFsBtn.addEventListener("click", () => {
+        const fileCards = document.querySelector("#file-cards");
+
+        const Card = (file, i) => {
+          const card = document.createElement("div");
+          card.classList.add("card");
+
+          const cardImage = document.createElement("img");
+
+          cardImage.src = file.contentType.includes("image")
+            ? "https://th.bing.com/th/id/OIP.KhEKUkd4eL9dJObSIXjmCwHaHa?pid=ImgDet&rs=1"
+            : file.contentType.includes("pdf")
+            ? "https://www.iconpacks.net/icons/2/free-pdf-icon-2616-thumb.png"
+            : "";
+          cardImage.classList.add("card-img");
+
+          card.appendChild(cardImage);
+          fileCards.appendChild(card);
+
+          card.addEventListener("click", () =>
+            window.open(`http://localhost:3000/test/${file.filename}`)
+          );
+        };
+
+        fetch("http://localhost:3000/files")
+          .then(res => res.json())
+          .then(({ files }) => files.forEach(Card))
+          .catch(console.log);
+      });
+
+      form.addEventListener("submit", e => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        fetch("http://localhost:3000/upload", {
+          method: "post",
+          body: formData,
+        })
+          .then(res => res.json())
+          .then(msg => console.log(msg))
+          .catch(console.log);
+      });
+    </script>
+  </body>
+</html>
