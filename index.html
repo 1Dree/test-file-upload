@@ -32,7 +32,7 @@
           const cardImage = document.createElement("img");
 
           cardImage.src = file.contentType.includes("image")
-            ? "https://th.bing.com/th/id/OIP.KhEKUkd4eL9dJObSIXjmCwHaHa?pid=ImgDet&rs=1"
+            ? `http://localhost:3000/image/${file.filename}`
             : file.contentType.includes("pdf")
             ? "https://www.iconpacks.net/icons/2/free-pdf-icon-2616-thumb.png"
             : "";

@@ -26,8 +26,9 @@ const conn = mongoose.createConnection(mongoUrl, {
 let gfs;
 
 conn.once("open", () => {
-  gfs = GridFsStream(conn.db, mongoose.mongo);
-  gfs.collection("uploads");
+  gfs = new mongoose.mongo.GridFSBucket(conn.db, {
+    bucketName: "uploads",
+  });
 
   app.listen(3000, () => console.log("listening"));
 });
@@ -62,7 +63,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
 });
 
 app.get("/files", (req, res) => {
-  gfs.files.find().toArray((err, files) => {
+  gfs.find().toArray((err, files) => {
     if (err) return res.sendStatus(400);
     if (!files || !files.length) return res.json({ msg: "No files to show" });
 
@@ -71,9 +72,9 @@ app.get("/files", (req, res) => {
 });
 
 app.get("/file/:filename", (req, res) => {
-  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+  gfs.find({ filename: req.params.filename }).toArray((err, file) => {
     if (err) return res.sendStatus(400);
-    if (!file || !file.length) return res.json({ msg: "No file to show" });
+    if (!file) return res.json({ msg: "No file to show" });
 
     res.json({ file });
   });
@@ -81,27 +82,27 @@ app.get("/file/:filename", (req, res) => {
 
 // display image
 app.get("/image/:filename", (req, res) => {
-  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+  gfs.find({ filename: req.params.filename }).toArray((err, files) => {
     if (err) return res.sendStatus(400);
-    if (!file || !file.length) return res.json({ msg: "No file to show" });
+    if (!files || !files.length) return res.json({ msg: "No files to show" });
 
-    if (/^image\/(jpeg|jpg|png)$/.test(file.contentType)) {
-      const readStream = gfs.createReadStream(file.filename);
-      readStream.pipe(res);
-    } else {
-      res.status(404).json({
-        msg: "Not an image",
-      });
-    }
+    files.forEach(file => {
+      if (/^image\/(jpeg|jpg|png)$/.test(file.contentType)) {
+        gfs.openDownloadStreamByName(req.params.filename).pipe(res);
+      } else {
+        return res.status(404).json({
+          msg: "Not an image",
+        });
+      }
+    });
   });
 });
 
 app.get("/test/:filename", (req, res) => {
-  gfs.files.findOne({ filename: req.params.filename }, (err, file) => {
+  gfs.find({ filename: req.params.filename }).toArray((err, file) => {
     if (err) return res.sendStatus(400);
     if (!file || !file.length) return res.json({ msg: "No file to show" });
 
-    const readStream = gfs.createReadStream(file.filename);
-    readStream.pipe(res);
+    gfs.openDownloadStreamByName(req.params.filename).pipe(res);
   });
 });
