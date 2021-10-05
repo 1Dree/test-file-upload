@@ -5,7 +5,6 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const { GridFsStorage } = require("multer-gridfs-storage");
-const GridFsStream = require("gridfs-stream");
 const methodOverride = require("method-override");
 
 const app = express();
@@ -30,7 +29,7 @@ conn.once("open", () => {
     bucketName: "uploads",
   });
 
-  app.listen(3000, () => console.log("listening"));
+  app.listen(3001, () => console.log("listening"));
 });
 
 const storage = new GridFsStorage({

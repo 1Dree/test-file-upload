@@ -16,11 +16,42 @@
     <div>
       <button id="getFiles">get all Files</button>
     </div>
+
+    <button id="send-email">Send Email</button>
     <div id="file-cards"></div>
 
     <script>
       const form = document.querySelector("form");
       const getFsBtn = document.querySelector("#getFiles");
+      const sendEmail = document.querySelector("#send-email");
+
+      let greetings = [];
+
+      const intervalId = setInterval(() => {
+        console.log("hello");
+        greetings.push("hello");
+
+        if (greetings.length === 3) {
+          clearInterval(intervalId);
+          console.log("cleared");
+        }
+      }, 5000);
+
+      sendEmail.addEventListener("click", () => {
+        fetch("http://localhost:3000/")
+          .then(res => res.json())
+          .then(console.log)
+          .catch(console.log);
+        // fetch("http://localhost:3000/send-email", {
+        //   method: "post",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        // })
+        //   .then(res => res.json())
+        //   .then(console.log)
+        //   .catch(console.log);
+      });
 
       getFsBtn.addEventListener("click", () => {
         const fileCards = document.querySelector("#file-cards");
@@ -56,7 +87,7 @@
         e.preventDefault();
         const formData = new FormData(form);
 
-        fetch("http://localhost:3000/upload", {
+        fetch("http://localhost:3000/file/upload", {
           method: "post",
           body: formData,
         })
@@ -64,6 +95,13 @@
           .then(msg => console.log(msg))
           .catch(console.log);
       });
+
+      const path = "root/test/test2/test 3";
+      const rePath = path;
+
+      const prevPath = rePath.replace(/\/[\w\s]{0,}$/, "");
+
+      console.log(prevPath, rePath);
     </script>
   </body>
 </html>
